@@ -8,5 +8,3 @@ class PersonalGenerator:
 
 
 cls = PersonalGenerator()
-print(cls.random_email)
-print(cls.random_password)

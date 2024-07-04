@@ -46,5 +46,3 @@ def registration(request):
     request.cls.driver.find_element(By.XPATH, BC.REGISTRATION_EMAIL_INPUT).send_keys(request.cls.email)
     request.cls.driver.find_element(By.XPATH, BC.REGISTRATION_PASSWORD_INPUT).send_keys(request.cls.correct_password)
     request.cls.driver.find_element(By.XPATH, BC.REGISTRATION_BUTTON).click()
-
-

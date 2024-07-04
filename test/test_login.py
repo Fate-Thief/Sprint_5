@@ -35,7 +35,7 @@ class TestAccountAccess:
         enter_button.click()
         self.wait.until(expected.invisibility_of_element(enter_button))
 
-        order_button = self.driver.find_element(By.XPATH, '//*[@id="root"]/div/main/section[2]/div/button')
+        order_button = self.driver.find_element(By.XPATH, BC.SIGN_IN_ORDER_BUTTON)
         assert order_button.text == 'Оформить заказ'
 
     def test_access_to_account_press_personal_account_link(self):
@@ -50,7 +50,7 @@ class TestAccountAccess:
         enter_button.click()
         self.wait.until(expected.invisibility_of_element(enter_button))
 
-        order_button = self.driver.find_element(By.XPATH, '//*[@id="root"]/div/main/section[2]/div/button')
+        order_button = self.driver.find_element(By.XPATH, BC.SIGN_IN_ORDER_BUTTON)
         assert order_button.text == 'Оформить заказ'
 
     def test_access_to_account_using_registration_link(self):
@@ -72,7 +72,7 @@ class TestAccountAccess:
         enter_button.click()
         self.wait.until(expected.invisibility_of_element(enter_button))
 
-        order_button = self.driver.find_element(By.XPATH, '//*[@id="root"]/div/main/section[2]/div/button')
+        order_button = self.driver.find_element(By.XPATH, BC.SIGN_IN_ORDER_BUTTON)
         assert order_button.text == 'Оформить заказ'
 
     def test_access_to_account_using_restore_password_link(self):
@@ -81,7 +81,7 @@ class TestAccountAccess:
         self.wait.until(expected.visibility_of_element_located((By.XPATH, BC.SIGN_IN_H2_TEXT)))
 
         self.driver.find_element(By.XPATH, BC.RESTORE_PASSWORD_LINK).click()
-        self.wait.until(expected.visibility_of_element_located((By.XPATH, '//*[@id="root"]/div/main/div/h2')))
+        self.wait.until(expected.visibility_of_element_located((By.XPATH, BC.RESTORE_PASSWORD_BUTTON)))
 
         enter_link = self.driver.find_element(By.XPATH, BC.SIGN_IN_LINK)
         self.driver.execute_script('arguments[0].click();', enter_link)
@@ -94,7 +94,7 @@ class TestAccountAccess:
         enter_button.click()
         self.wait.until(expected.invisibility_of_element(enter_button))
 
-        order_button = self.driver.find_element(By.XPATH, '//*[@id="root"]/div/main/section[2]/div/button')
+        order_button = self.driver.find_element(By.XPATH, BC.SIGN_IN_ORDER_BUTTON)
         assert order_button.text == 'Оформить заказ'
 
 

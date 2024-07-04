@@ -23,7 +23,7 @@ class TestPersonalAccount:
 
     def test_go_to_personal_account_authorized_user(self):
         self.driver.find_element(By.XPATH, BC.SIGN_IN_ACCOUNT_BUTTON).click()
-        self.wait.until(expected.visibility_of_element_located((By.XPATH, '//*[@id="root"]//h2[text()="Вход"]')))
+        self.wait.until(expected.visibility_of_element_located((By.XPATH, BC.SIGN_IN_H2_TEXT)))
 
         self.driver.find_element(By.XPATH, BC.SIGN_IN_EMAIL).send_keys(self.email)
         self.driver.find_element(By.XPATH, BC.SIGN_IN_PASSWORD).send_keys(self.correct_password)
@@ -31,7 +31,7 @@ class TestPersonalAccount:
         enter_button.click()
         self.wait.until(expected.invisibility_of_element(enter_button))
 
-        account_link = self.driver.find_element(By.XPATH, '//*[@id="root"]/div/header/nav/a')
+        account_link = self.driver.find_element(By.XPATH, BC.PROFILE_LINK)
         self.driver.execute_script('arguments[0].click();', account_link)
 
         self.wait.until(expected.presence_of_element_located((By.CSS_SELECTOR, '.input__textfield')))
@@ -54,7 +54,7 @@ class TestPersonalAccount:
         self.wait.until(expected.presence_of_element_located((By.CSS_SELECTOR, '.input__textfield')))
 
         self.driver.find_element(By.XPATH, BC.LOGO_BUTTON_LINK).click()
-        construct_burger = self.driver.find_element(By.XPATH, '//*[@id="root"]/div/main/section[1]/h1')
+        construct_burger = self.driver.find_element(By.XPATH, BC.CONSTRUCTOR_HEADER)
         assert construct_burger.text == 'Соберите бургер'
 
     def test_sign_out(self):
@@ -72,6 +72,6 @@ class TestPersonalAccount:
         self.wait.until(expected.presence_of_element_located((By.CSS_SELECTOR, '.input__textfield')))
 
         self.driver.find_element(By.XPATH, BC.EXIT_BUTTON).click()
-        h2 = self.wait.until(expected.visibility_of_element_located((By.XPATH, '//*[@id="root"]//h2')))
+        h2 = self.wait.until(expected.visibility_of_element_located((By.XPATH, BC.SIGN_IN_H2_TEXT)))
 
         assert h2.text == "Вход"
