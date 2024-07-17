@@ -1,56 +1,48 @@
 import pytest
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as expected
-from ByLocators import ByLocators as BC
+
+from consts.constants import BASE_URL
+from locators.by_locators import ByLocators as BC
+from utils.driver_utils import wait_element_is_visible, wait_element_is_not_visible, wait_element_is_clickable
 
 
-@pytest.mark.usefixtures("setup")
+@pytest.mark.usefixtures("driver")
 class TestRegistration:
-    url = 'https://stellarburgers.nomoreparties.site/'
-    user_name = 'Nastia'
-    incorrect_password = '123'
+    def test_success_registration(self, driver, random_user):
+        driver.get(url=BASE_URL)
 
-    def test_success_registration(self):
-        self.driver.get(url=self.url)
-        self.driver.maximize_window()
+        driver.find_element(By.XPATH, BC.SIGN_IN_ACCOUNT_BUTTON).click()
 
-        self.driver.find_element(By.XPATH, BC.SIGN_IN_ACCOUNT_BUTTON).click()
-        self.wait.until(expected.visibility_of_element_located((By.XPATH, BC.SIGN_IN_H2_TEXT)))
+        wait_element_is_visible(driver, locator=BC.SIGN_IN_H2_TEXT)
 
-        self.driver.find_element(By.XPATH, BC.REGISTRATION_LINK).click()
-        registration = self.wait.until(expected.visibility_of_element_located((By.XPATH, BC.REGISTRATION_H2_TEXT)))
+        driver.find_element(By.XPATH, BC.REGISTRATION_LINK).click()
+        registration_element = wait_element_is_visible(driver, locator=BC.REGISTRATION_H2_TEXT)
 
-        self.driver.find_element(By.XPATH, BC.REGISTRATION_NAME_INPUT).send_keys(self.user_name)
-        self.driver.find_element(By.XPATH, BC.REGISTRATION_EMAIL_INPUT).send_keys(self.email)
-        self.driver.find_element(By.XPATH, BC.REGISTRATION_PASSWORD_INPUT).send_keys(self.correct_password)
-        self.driver.find_element(By.XPATH, BC.REGISTRATION_BUTTON).click()
-        self.wait.until(expected.invisibility_of_element(registration))
+        driver.find_element(By.XPATH, BC.REGISTRATION_NAME_INPUT).send_keys(random_user.username)
+        driver.find_element(By.XPATH, BC.REGISTRATION_EMAIL_INPUT).send_keys(random_user.random_email)
+        driver.find_element(By.XPATH, BC.REGISTRATION_PASSWORD_INPUT).send_keys(random_user.random_password)
+        driver.find_element(By.XPATH, BC.REGISTRATION_BUTTON).click()
 
-        element = self.wait.until(expected.visibility_of_element_located((By.TAG_NAME, 'h2')))
+        wait_element_is_not_visible(driver, element=registration_element)
+
+        element = wait_element_is_visible(driver, by=By.TAG_NAME, locator='h2')
         assert element.text == 'Вход'
 
-    def test_registration_with_incorrect_password(self):
-        self.driver.get(url=self.url)
-        self.driver.maximize_window()
+    def test_registration_with_incorrect_password(self, driver, random_user):
+        incorrect_password = '123'
+        driver.get(url=BASE_URL)
 
-        self.driver.find_element(By.XPATH, BC.SIGN_IN_ACCOUNT_BUTTON).click()
-        self.wait.until(expected.visibility_of_element_located((By.XPATH, BC.SIGN_IN_H2_TEXT)))
+        driver.find_element(By.XPATH, BC.SIGN_IN_ACCOUNT_BUTTON).click()
+        wait_element_is_visible(driver, BC.SIGN_IN_H2_TEXT)
 
-        self.driver.find_element(By.XPATH, BC.REGISTRATION_LINK).click()
-        self.wait.until(expected.element_to_be_clickable((By.XPATH, BC.REGISTRATION_H2_TEXT)))
+        driver.find_element(By.XPATH, BC.REGISTRATION_LINK).click()
 
-        self.driver.find_element(By.XPATH, BC.REGISTRATION_NAME_INPUT).send_keys(self.user_name)
-        self.driver.find_element(By.XPATH, BC.REGISTRATION_EMAIL_INPUT).send_keys(self.email)
-        self.driver.find_element(By.XPATH, BC.REGISTRATION_PASSWORD_INPUT).send_keys(self.incorrect_password)
-        self.driver.find_element(By.XPATH, BC.REGISTRATION_BUTTON).click()
+        wait_element_is_clickable(driver, locator=BC.REGISTRATION_H2_TEXT)
 
-        element = self.wait.until(expected.visibility_of_element_located((By.CSS_SELECTOR, '.input__error')))
+        driver.find_element(By.XPATH, BC.REGISTRATION_NAME_INPUT).send_keys(random_user.username)
+        driver.find_element(By.XPATH, BC.REGISTRATION_EMAIL_INPUT).send_keys(random_user.random_email)
+        driver.find_element(By.XPATH, BC.REGISTRATION_PASSWORD_INPUT).send_keys(incorrect_password)
+        driver.find_element(By.XPATH, BC.REGISTRATION_BUTTON).click()
+
+        element = wait_element_is_visible(driver, by=By.CSS_SELECTOR, locator='.input__error')
         assert element.text == 'Некорректный пароль'
-
-
-
-
-
-
-
-

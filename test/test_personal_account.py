@@ -1,77 +1,75 @@
-import pytest
-from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as expected
-from ByLocators import ByLocators as BC
+
+from consts.constants import BASE_URL, REGISTRATION_URL
+from locators.by_locators import ByLocators as BC
+from utils.driver_utils import wait_element_is_visible, wait_element_is_not_visible, wait_element_is_present
 
 
-@pytest.mark.usefixtures("setup", "registration")
 class TestPersonalAccount:
-    url = 'https://stellarburgers.nomoreparties.site/'
-    registration_url = 'https://stellarburgers.nomoreparties.site/register'
-    user_name = 'Nastia'
+    def test_go_to_personal_account_authorized_user(self, driver, random_user, registration):
+        driver.get(url=REGISTRATION_URL)
+        registration()
 
-    @pytest.fixture(scope='function', autouse=True)
-    def setup_and_teardown(self):
-        self.driver = webdriver.Chrome(options=self.driver_options)
-        self.driver.get(self.url)
-        self.driver.maximize_window()
-        self.driver.implicitly_wait(1)
+        driver.get(url=BASE_URL)
+        driver.find_element(By.XPATH, BC.SIGN_IN_ACCOUNT_BUTTON).click()
+        wait_element_is_visible(driver, locator=BC.SIGN_IN_H2_TEXT)
 
-        yield self.driver
-        self.driver.quit()
-
-    def test_go_to_personal_account_authorized_user(self):
-        self.driver.find_element(By.XPATH, BC.SIGN_IN_ACCOUNT_BUTTON).click()
-        self.wait.until(expected.visibility_of_element_located((By.XPATH, BC.SIGN_IN_H2_TEXT)))
-
-        self.driver.find_element(By.XPATH, BC.SIGN_IN_EMAIL).send_keys(self.email)
-        self.driver.find_element(By.XPATH, BC.SIGN_IN_PASSWORD).send_keys(self.correct_password)
-        enter_button = self.driver.find_element(By.XPATH, BC.SIGN_IN_BUTTON)
+        driver.find_element(By.XPATH, BC.SIGN_IN_EMAIL).send_keys(random_user.random_email)
+        driver.find_element(By.XPATH, BC.SIGN_IN_PASSWORD).send_keys(random_user.random_password)
+        enter_button = driver.find_element(By.XPATH, BC.SIGN_IN_BUTTON)
         enter_button.click()
-        self.wait.until(expected.invisibility_of_element(enter_button))
+        wait_element_is_not_visible(driver, element=enter_button)
 
-        account_link = self.driver.find_element(By.XPATH, BC.PROFILE_LINK)
-        self.driver.execute_script('arguments[0].click();', account_link)
+        account_link = driver.find_element(By.XPATH, BC.PROFILE_LINK)
+        driver.execute_script('arguments[0].click();', account_link)
 
-        self.wait.until(expected.presence_of_element_located((By.CSS_SELECTOR, '.input__textfield')))
-        account = self.driver.find_elements(By.CSS_SELECTOR, '.input__textfield')[0]
+        wait_element_is_present(driver, by=By.CSS_SELECTOR, locator='.input__textfield')
+        account = driver.find_elements(By.CSS_SELECTOR, '.input__textfield')[0]
 
-        assert account.get_property('value') == self.user_name
+        assert account.get_property('value') == random_user.username
 
-    def test_go_from_personal_account_to_constructor_clicking_by_logo(self):
-        self.driver.find_element(By.XPATH, BC.SIGN_IN_ACCOUNT_BUTTON).click()
-        self.wait.until(expected.visibility_of_element_located((By.XPATH, BC.SIGN_IN_H2_TEXT)))
+    def test_go_from_personal_account_to_constructor_clicking_by_logo(self, driver, random_user, registration):
+        driver.get(url=REGISTRATION_URL)
+        registration()
 
-        self.driver.find_element(By.XPATH, BC.SIGN_IN_EMAIL).send_keys(self.email)
-        self.driver.find_element(By.XPATH, BC.SIGN_IN_PASSWORD).send_keys(self.correct_password)
-        enter_button = self.driver.find_element(By.XPATH, BC.SIGN_IN_BUTTON)
+        driver.get(url=BASE_URL)
+        driver.find_element(By.XPATH, BC.SIGN_IN_ACCOUNT_BUTTON).click()
+        wait_element_is_visible(driver, locator=BC.SIGN_IN_H2_TEXT)
+
+        driver.find_element(By.XPATH, BC.SIGN_IN_EMAIL).send_keys(random_user.random_email)
+        driver.find_element(By.XPATH, BC.SIGN_IN_PASSWORD).send_keys(random_user.random_password)
+        enter_button = driver.find_element(By.XPATH, BC.SIGN_IN_BUTTON)
         enter_button.click()
-        self.wait.until(expected.invisibility_of_element(enter_button))
+        wait_element_is_not_visible(driver, element=enter_button)
 
-        link = self.driver.find_element(By.XPATH, BC.PERSONAL_ACCOUNT_LINK)
-        self.driver.execute_script('arguments[0].click();', link)
-        self.wait.until(expected.presence_of_element_located((By.CSS_SELECTOR, '.input__textfield')))
+        link = driver.find_element(By.XPATH, BC.PERSONAL_ACCOUNT_LINK)
+        driver.execute_script('arguments[0].click();', link)
 
-        self.driver.find_element(By.XPATH, BC.LOGO_BUTTON_LINK).click()
-        construct_burger = self.driver.find_element(By.XPATH, BC.CONSTRUCTOR_HEADER)
+        wait_element_is_present(driver, by=By.CSS_SELECTOR, locator='.input__textfield')
+
+        driver.find_element(By.XPATH, BC.LOGO_BUTTON_LINK).click()
+        construct_burger = driver.find_element(By.XPATH, BC.CONSTRUCTOR_HEADER)
         assert construct_burger.text == 'Соберите бургер'
 
-    def test_sign_out(self):
-        self.driver.find_element(By.XPATH, BC.SIGN_IN_ACCOUNT_BUTTON).click()
-        self.wait.until(expected.visibility_of_element_located((By.XPATH, BC.SIGN_IN_H2_TEXT)))
+    def test_sign_out(self, driver, random_user, registration):
+        driver.get(url=REGISTRATION_URL)
+        registration()
 
-        self.driver.find_element(By.XPATH, BC.SIGN_IN_EMAIL).send_keys(self.email)
-        self.driver.find_element(By.XPATH, BC.SIGN_IN_PASSWORD).send_keys(self.correct_password)
-        enter_button = self.driver.find_element(By.XPATH, BC.SIGN_IN_BUTTON)
+        driver.get(url=BASE_URL)
+        driver.find_element(By.XPATH, BC.SIGN_IN_ACCOUNT_BUTTON).click()
+        wait_element_is_visible(driver, locator=BC.SIGN_IN_H2_TEXT)
+
+        driver.find_element(By.XPATH, BC.SIGN_IN_EMAIL).send_keys(random_user.random_email)
+        driver.find_element(By.XPATH, BC.SIGN_IN_PASSWORD).send_keys(random_user.random_password)
+        enter_button = driver.find_element(By.XPATH, BC.SIGN_IN_BUTTON)
         enter_button.click()
-        self.wait.until(expected.invisibility_of_element(enter_button))
+        wait_element_is_not_visible(driver, element=enter_button)
 
-        link = self.driver.find_element(By.XPATH, BC.PERSONAL_ACCOUNT_LINK)
-        self.driver.execute_script('arguments[0].click();', link)
-        self.wait.until(expected.presence_of_element_located((By.CSS_SELECTOR, '.input__textfield')))
+        link = driver.find_element(By.XPATH, BC.PERSONAL_ACCOUNT_LINK)
+        driver.execute_script('arguments[0].click();', link)
+        wait_element_is_present(driver, by=By.CSS_SELECTOR, locator='.input__textfield')
 
-        self.driver.find_element(By.XPATH, BC.EXIT_BUTTON).click()
-        h2 = self.wait.until(expected.visibility_of_element_located((By.XPATH, BC.SIGN_IN_H2_TEXT)))
+        driver.find_element(By.XPATH, BC.EXIT_BUTTON).click()
+        h2 = wait_element_is_visible(driver, locator=BC.SIGN_IN_H2_TEXT)
 
         assert h2.text == "Вход"

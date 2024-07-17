@@ -1,48 +1,55 @@
 import pytest
 from selenium import webdriver
-from PersonalGenerator import PersonalGenerator
-from selenium.webdriver.support.wait import WebDriverWait as Wait
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as expected
-from ByLocators import ByLocators as BC
+from locators.by_locators import ByLocators as BC
+from utils.driver_utils import wait_element_is_visible
+
+from utils.personal_generator import PersonalGenerator
 
 
-@pytest.fixture(scope="class", params=['chrome'])
-def setup(request):
+@pytest.fixture()
+def random_user() -> PersonalGenerator:
+    return PersonalGenerator()
 
-    cred_generator = PersonalGenerator()
-    request.cls.email = cred_generator.random_email
-    request.cls.correct_password = cred_generator.random_password
 
+@pytest.fixture(params=['chrome'])
+def driver(request):
     if request.param == "firefox":
         firefox_option = webdriver.FirefoxOptions()
-        request.cls.driver_options = firefox_option
         driver = webdriver.Firefox(options=firefox_option)
-
-    if request.param == "chrome":
-        chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_argument("no-sandbox")
-        chrome_options.add_argument("--headless")
-        request.cls.driver_options = chrome_options
+    elif request.param == "chrome":
+        chrome_options = Options()
+        chrome_options.add_argument("--start-maximized")
         driver = webdriver.Chrome(options=chrome_options)
-
-    request.cls.driver = driver
-
-    wait = Wait(driver, timeout = 5, poll_frequency = 0.1)
-    request.cls.wait = wait
+    else:
+        raise ValueError("Please select correct browser type")
 
     yield driver
     driver.quit()
 
 
-@pytest.fixture(scope="class", params=['chrome'])
-def registration(request):
-    request.cls.driver.get(url=request.cls.registration_url)
-    request.cls.driver.maximize_window()
-    request.cls.wait.until(expected.visibility_of_element_located((By.XPATH, BC.REGISTRATION_H2_TEXT)))
+@pytest.fixture()
+def registration(driver, random_user):
+    def _register():
+        wait_element_is_visible(driver, locator=BC.REGISTRATION_H2_TEXT)
 
-    # registration
-    request.cls.driver.find_element(By.XPATH, BC.REGISTRATION_NAME_INPUT).send_keys(request.cls.user_name)
-    request.cls.driver.find_element(By.XPATH, BC.REGISTRATION_EMAIL_INPUT).send_keys(request.cls.email)
-    request.cls.driver.find_element(By.XPATH, BC.REGISTRATION_PASSWORD_INPUT).send_keys(request.cls.correct_password)
-    request.cls.driver.find_element(By.XPATH, BC.REGISTRATION_BUTTON).click()
+        # registration
+        driver.find_element(By.XPATH, BC.REGISTRATION_NAME_INPUT).send_keys(random_user.username)
+        driver.find_element(By.XPATH, BC.REGISTRATION_EMAIL_INPUT).send_keys(random_user.random_email)
+        driver.find_element(By.XPATH, BC.REGISTRATION_PASSWORD_INPUT).send_keys(random_user.random_password)
+        driver.find_element(By.XPATH, BC.REGISTRATION_BUTTON).click()
+
+    yield _register
+
+# @pytest.fixture()
+# def login(driver, random_user):
+#     def _login():
+#         wait_element_is_visible(driver, locator=BC.SIGN_IN_H2_TEXT)
+#
+#         driver.find_element(By.XPATH, BC.SIGN_IN_EMAIL).send_keys(random_user.random_email)
+#         driver.find_element(By.XPATH, BC.SIGN_IN_PASSWORD).send_keys(random_user.random_password)
+#         enter_button = driver.find_element(By.XPATH, BC.SIGN_IN_BUTTON)
+#         enter_button.click()
+#         wait_element_is_not_visible(driver, element=enter_button)
+#     yield _login

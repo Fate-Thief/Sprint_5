@@ -1,115 +1,89 @@
-import pytest
-from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as expected
-from ByLocators import ByLocators as BC
+
+from consts.constants import REGISTRATION_URL, BASE_URL
+from locators.by_locators import ByLocators as BC
+from utils.driver_utils import wait_element_is_visible, wait_element_is_not_visible
 
 
-@pytest.mark.usefixtures("setup", "registration")
 class TestAccountAccess:
+    def test_access_to_account_click_sign_in_button(self, driver, random_user, registration):
+        driver.get(url=REGISTRATION_URL)
+        registration()
 
-    url = 'https://stellarburgers.nomoreparties.site/'
-    registration_url = 'https://stellarburgers.nomoreparties.site/register'
-    user_name = 'Nastia'
+        wait_element_is_visible(driver, locator=BC.SIGN_IN_H2_TEXT)
 
-    @pytest.fixture(scope='function', autouse=True)
-    def setup_and_teardown(self):
-
-        # get new browser for each test
-        self.driver = webdriver.Chrome(options=self.driver_options)
-        self.driver.get(self.url)
-        self.driver.maximize_window()
-        self.driver.implicitly_wait(2)
-
-        yield self.driver
-        self.driver.quit()
-
-    def test_access_to_account_click_sign_in_button(self):
-
-        self.driver.find_element(By.XPATH, BC.SIGN_IN_ACCOUNT_BUTTON).click()
-        self.wait.until(expected.visibility_of_element_located((By.XPATH, BC.SIGN_IN_H2_TEXT)))
-
-        self.driver.find_element(By.XPATH, BC.SIGN_IN_EMAIL).send_keys(self.email)
-        self.driver.find_element(By.XPATH, BC.SIGN_IN_PASSWORD).send_keys(self.correct_password)
-        enter_button = self.driver.find_element(By.XPATH, BC.SIGN_IN_BUTTON)
+        driver.find_element(By.XPATH, BC.SIGN_IN_EMAIL).send_keys(random_user.random_email)
+        driver.find_element(By.XPATH, BC.SIGN_IN_PASSWORD).send_keys(random_user.random_password)
+        enter_button = driver.find_element(By.XPATH, BC.SIGN_IN_BUTTON)
         enter_button.click()
-        self.wait.until(expected.invisibility_of_element(enter_button))
+        wait_element_is_not_visible(driver, element=enter_button)
 
-        order_button = self.driver.find_element(By.XPATH, BC.SIGN_IN_ORDER_BUTTON)
+        order_button = driver.find_element(By.XPATH, BC.SIGN_IN_ORDER_BUTTON)
         assert order_button.text == 'Оформить заказ'
 
-    def test_access_to_account_press_personal_account_link(self):
+    def test_access_to_account_press_personal_account_link(self, driver, random_user, registration):
+        driver.get(url=REGISTRATION_URL)
+        registration()
 
-        link = self.driver.find_element(By.XPATH, BC.PERSONAL_ACCOUNT_LINK)
-        self.driver.execute_script('arguments[0].click();', link)
-        self.wait.until(expected.visibility_of_element_located((By.XPATH, BC.SIGN_IN_H2_TEXT)))
+        link = driver.find_element(By.XPATH, BC.PERSONAL_ACCOUNT_LINK)
+        driver.execute_script('arguments[0].click();', link)
 
-        self.driver.find_element(By.XPATH, BC.SIGN_IN_EMAIL).send_keys(self.email)
-        self.driver.find_element(By.XPATH, BC.SIGN_IN_PASSWORD).send_keys(self.correct_password)
-        enter_button = self.driver.find_element(By.XPATH, BC.SIGN_IN_BUTTON)
+        wait_element_is_visible(driver, locator=BC.SIGN_IN_H2_TEXT)
+
+        driver.find_element(By.XPATH, BC.SIGN_IN_EMAIL).send_keys(random_user.random_email)
+        driver.find_element(By.XPATH, BC.SIGN_IN_PASSWORD).send_keys(random_user.random_password)
+        enter_button = driver.find_element(By.XPATH, BC.SIGN_IN_BUTTON)
         enter_button.click()
-        self.wait.until(expected.invisibility_of_element(enter_button))
+        wait_element_is_not_visible(driver, element=enter_button)
 
-        order_button = self.driver.find_element(By.XPATH, BC.SIGN_IN_ORDER_BUTTON)
+        order_button = driver.find_element(By.XPATH, BC.SIGN_IN_ORDER_BUTTON)
         assert order_button.text == 'Оформить заказ'
 
-    def test_access_to_account_using_registration_link(self):
+    def test_access_to_account_using_registration_link(self, driver, random_user, registration):
+        driver.get(url=REGISTRATION_URL)
+        registration()
 
-        self.driver.find_element(By.XPATH, BC.SIGN_IN_ACCOUNT_BUTTON).click()
-        self.wait.until(expected.visibility_of_element_located((By.XPATH, BC.SIGN_IN_H2_TEXT)))
+        driver.get(url=BASE_URL)
+        driver.find_element(By.XPATH, BC.SIGN_IN_ACCOUNT_BUTTON).click()
+        wait_element_is_visible(driver, locator=BC.SIGN_IN_H2_TEXT)
 
-        self.driver.find_element(By.XPATH, BC.REGISTRATION_LINK).click()
+        driver.find_element(By.XPATH, BC.REGISTRATION_LINK).click()
+        wait_element_is_visible(driver, by=By.CSS_SELECTOR, locator='.undefined')
 
-        self.wait.until(expected.visibility_of_element_located((By.CSS_SELECTOR, '.undefined')))
+        enter_link = driver.find_element(By.XPATH, BC.SIGN_IN_LINK)
+        driver.execute_script('arguments[0].click();', enter_link)
+        wait_element_is_visible(driver, BC.SIGN_IN_H2_TEXT)
 
-        enter_link = self.driver.find_element(By.XPATH, BC.SIGN_IN_LINK)
-        self.driver.execute_script('arguments[0].click();', enter_link)
-        self.wait.until(expected.visibility_of_element_located((By.XPATH, BC.SIGN_IN_H2_TEXT)))
-
-        self.driver.find_element(By.XPATH, BC.SIGN_IN_EMAIL).send_keys(self.email)
-        self.driver.find_element(By.XPATH, BC.SIGN_IN_PASSWORD).send_keys(self.correct_password)
-        enter_button = self.driver.find_element(By.XPATH, BC.SIGN_IN_BUTTON)
+        driver.find_element(By.XPATH, BC.SIGN_IN_EMAIL).send_keys(random_user.random_email)
+        driver.find_element(By.XPATH, BC.SIGN_IN_PASSWORD).send_keys(random_user.random_password)
+        enter_button = driver.find_element(By.XPATH, BC.SIGN_IN_BUTTON)
         enter_button.click()
-        self.wait.until(expected.invisibility_of_element(enter_button))
+        wait_element_is_not_visible(driver, element=enter_button)
 
-        order_button = self.driver.find_element(By.XPATH, BC.SIGN_IN_ORDER_BUTTON)
+        order_button = driver.find_element(By.XPATH, BC.SIGN_IN_ORDER_BUTTON)
         assert order_button.text == 'Оформить заказ'
 
-    def test_access_to_account_using_restore_password_link(self):
+    def test_access_to_account_using_restore_password_link(self, driver, random_user, registration):
+        driver.get(url=REGISTRATION_URL)
+        registration()
+        driver.get(url=BASE_URL)
 
-        self.driver.find_element(By.XPATH, BC.SIGN_IN_ACCOUNT_BUTTON).click()
-        self.wait.until(expected.visibility_of_element_located((By.XPATH, BC.SIGN_IN_H2_TEXT)))
+        driver.find_element(By.XPATH, BC.SIGN_IN_ACCOUNT_BUTTON).click()
+        wait_element_is_visible(driver, locator=BC.SIGN_IN_H2_TEXT)
 
-        self.driver.find_element(By.XPATH, BC.RESTORE_PASSWORD_LINK).click()
-        self.wait.until(expected.visibility_of_element_located((By.XPATH, BC.RESTORE_PASSWORD_BUTTON)))
+        driver.find_element(By.XPATH, BC.RESTORE_PASSWORD_LINK).click()
+        wait_element_is_visible(driver, locator=BC.RESTORE_PASSWORD_BUTTON)
 
-        enter_link = self.driver.find_element(By.XPATH, BC.SIGN_IN_LINK)
-        self.driver.execute_script('arguments[0].click();', enter_link)
+        enter_link = driver.find_element(By.XPATH, BC.SIGN_IN_LINK)
+        driver.execute_script('arguments[0].click();', enter_link)
 
-        self.wait.until(expected.visibility_of_element_located((By.XPATH, BC.SIGN_IN_H2_TEXT)))
+        wait_element_is_visible(driver, locator=BC.SIGN_IN_H2_TEXT)
 
-        self.driver.find_element(By.XPATH, BC.SIGN_IN_EMAIL).send_keys(self.email)
-        self.driver.find_element(By.XPATH, BC.SIGN_IN_PASSWORD).send_keys(self.correct_password)
-        enter_button = self.driver.find_element(By.XPATH, BC.SIGN_IN_BUTTON)
+        driver.find_element(By.XPATH, BC.SIGN_IN_EMAIL).send_keys(random_user.random_email)
+        driver.find_element(By.XPATH, BC.SIGN_IN_PASSWORD).send_keys(random_user.random_password)
+        enter_button = driver.find_element(By.XPATH, BC.SIGN_IN_BUTTON)
         enter_button.click()
-        self.wait.until(expected.invisibility_of_element(enter_button))
+        wait_element_is_not_visible(driver, element=enter_button)
 
-        order_button = self.driver.find_element(By.XPATH, BC.SIGN_IN_ORDER_BUTTON)
+        order_button = driver.find_element(By.XPATH, BC.SIGN_IN_ORDER_BUTTON)
         assert order_button.text == 'Оформить заказ'
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

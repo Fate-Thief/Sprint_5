@@ -27,4 +27,3 @@ class ByLocators:
     CONSTRUCTOR_DIPS_DIV = '//span[text()="Начинки"]/parent::div'
     CONSTRUCTOR_SAUCES_H2_TEXT = '//h2[text()="Соусы"]'
     CONSTRUCTOR_SAUCES_SPAN = '//*[contains(@class,"tab_tab_type_current")]/span'
-
